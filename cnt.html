@@ -1,0 +1,1090 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learning Bootstrap 5 | Group 13, VIT Pune</title>
+    
+    <!-- Bootstrap 5 CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" xintegrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+
+    <style>
+        /* --- ANIMATIONS --- */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* --- CRITICAL STYLES: NO SCROLLING & FULLSCREEN LAYOUT --- */
+        html, body {
+            overflow: hidden; /* NON-NEGOTIABLE: Prevents scrollbars */
+            height: 100%;
+            width: 100%;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+            background: #eef2f7; /* Fallback */
+            background: linear-gradient(135deg, #e9f1ff 0%, #f8f9fa 100%);
+        }
+
+        /* --- PRESENTATION CONTAINER & SLIDE STYLING --- */
+        .presentation-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        .slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 4vw;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.5s ease-in-out;
+            backface-visibility: hidden;
+        }
+
+        .slide.active {
+            opacity: 1;
+            visibility: visible;
+            z-index: 1;
+        }
+        
+        /* Staggered animations for elements on active slide */
+        .slide.active .animated {
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+        .slide.active .delay-1 { animation-delay: 0.2s; }
+        .slide.active .delay-2 { animation-delay: 0.4s; }
+        .slide.active .delay-3 { animation-delay: 0.6s; }
+        .slide.active .delay-4 { animation-delay: 0.8s; }
+
+        .animated {
+            opacity: 0;
+        }
+
+        /* --- UI NAVIGATION & CONTROLS --- */
+        .presentation-controls {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background-color: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            padding: 10px 20px;
+            border-radius: 50px;
+            border: 1px solid rgba(0,0,0,0.05);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        .presentation-controls:hover {
+            transform: translateX(-50%) scale(1.05);
+        }
+        
+        .control-btn {
+            background-color: #fff;
+            border: none;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: all 0.2s ease;
+        }
+        .control-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+        }
+        .control-btn:disabled {
+            opacity: 0.4;
+            transform: scale(1);
+            cursor: not-allowed;
+        }
+        
+        #slide-counter {
+            font-weight: 700;
+            font-size: 1rem;
+            color: #343a40;
+            min-width: 60px;
+            text-align: center;
+        }
+
+        #fullscreen-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background-color: #fff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        /* --- CONTENT & TYPOGRAPHY STYLING --- */
+        .slide-title {
+            font-size: clamp(2.5rem, 6vw, 5rem);
+            font-weight: 900;
+            color: #212529;
+            margin-bottom: 0.5rem;
+            text-align: center;
+            background: -webkit-linear-gradient(45deg, #0d6efd, #0dcaf0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .slide-subtitle {
+            font-size: clamp(1.2rem, 2.5vw, 2rem);
+            font-weight: 400;
+            color: #6c757d;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        
+        .section-title-slide h1 {
+            font-size: clamp(3rem, 8vw, 7rem);
+            font-weight: 900;
+            color: #2c3e50;
+            padding-bottom: 1rem;
+            position: relative;
+        }
+        .section-title-slide h1::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            height: 6px;
+            background: linear-gradient(90deg, #0d6efd, #0dcaf0);
+            border-radius: 3px;
+        }
+
+        .content-text {
+            font-size: clamp(1rem, 1.8vw, 1.5rem);
+            color: #495057;
+            max-width: 850px;
+            text-align: center;
+            line-height: 1.7;
+        }
+        
+        .team-members {
+            list-style: none;
+            padding: 0;
+            display: flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+        
+        .team-members li {
+            font-size: clamp(1rem, 1.5vw, 1.3rem);
+            font-weight: 700;
+            color: #343a40;
+            background-color: rgba(255,255,255,0.7);
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        /* --- SPECIFIC SLIDE ELEMENT STYLES --- */
+        .code-snippet {
+            background-color: #212529;
+            color: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            font-family: 'Courier New', Courier, monospace;
+            text-align: left;
+            width: 100%;
+            max-width: 600px;
+            white-space: pre-wrap;
+            font-size: clamp(0.8rem, 1.2vw, 1rem);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+            border: 1px solid #343a40;
+        }
+        
+        .comparison-container {
+            display: flex;
+            gap: 2rem;
+            width: 100%;
+            max-width: 1200px;
+            align-items: stretch; /* Make items equal height */
+            justify-content: center;
+        }
+        
+        .comparison-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .svg-diagram {
+            width: 100%;
+            max-width: 800px;
+            height: auto;
+            filter: drop-shadow(0 10px 15px rgba(0,0,0,0.07));
+        }
+        
+        .card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        
+        #carousel-example {
+            width: 100%;
+            max-width: 800px;
+            border-radius: 1rem;
+            overflow: hidden;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+        }
+
+        .final-slide-text {
+             font-size: clamp(4rem, 10vw, 8rem);
+             font-weight: 900;
+             background: -webkit-linear-gradient(45deg, #0d6efd, #6f42c1);
+             -webkit-background-clip: text;
+             -webkit-text-fill-color: transparent;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="presentation-container">
+        <!-- Slide 1: Title Slide -->
+        <div class="slide active" id="slide-1">
+            <h1 class="slide-title animated">Learning Bootstrap 5</h1>
+            <p class="slide-subtitle animated delay-1">A Comprehensive Guide</p>
+            <div class="mt-5 text-center animated delay-2">
+                <p class="h5">Group 13, CSE AIML TY A</p>
+                <p class="h6 text-muted">Vishwakarma Institute of Technology</p>
+            </div>
+            <ul class="team-members animated delay-3">
+                <li>Ishan Agrawal</li>
+                <li>Hitanshi Sahni</li>
+                <li>Viraj Divekar</li>
+                <li>Sahishnu G</li>
+                <li>Karthik Chavan</li>
+            </ul>
+        </div>
+
+        <!-- Section 1: Introduction -->
+        <div class="slide section-title-slide" id="slide-2">
+            <h1 class="animated">Introduction to Bootstrap</h1>
+        </div>
+
+        <div class="slide" id="slide-3">
+            <h2 class="slide-title animated">What is Bootstrap?</h2>
+            <p class="content-text mb-4 animated delay-1">A powerful, open-source front-end toolkit for building responsive, mobile-first websites faster and easier.</p>
+            <svg class="svg-diagram animated delay-2" viewBox="0 0 400 280" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <linearGradient id="grad-primary" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" style="stop-color:#0d6efd;stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:#0dcaf0;stop-opacity:1" />
+                </linearGradient>
+            </defs>
+            <!-- Connectors (drawn first, so they go behind) -->
+            <line x1="200" y1="60" x2="200" y2="75" stroke="#0d6efd" stroke-width="2"/> <!-- HTML -->
+            <line x1="200" y1="60" x2="170" y2="145" stroke="#0d6efd" stroke-width="2" stroke-dasharray="4"/> <!-- CSS -->
+            <line x1="200" y1="60" x2="230" y2="215" stroke="#0d6efd" stroke-width="2" stroke-dasharray="4"/> <!-- JS -->
+            <!-- Bootstrap -->
+            <rect x="60" y="10" width="280" height="50" rx="5" fill="url(#grad-primary)" />
+            <text x="200" y="40" font-family="Inter" font-size="16" fill="white" text-anchor="middle">
+                Bootstrap (Framework Layer)
+            </text>
+            <!-- HTML -->
+            <rect x="10" y="80" width="380" height="50" rx="5" fill="#6c757d" />
+            <text x="200" y="110" font-family="Inter" font-size="16" fill="white" text-anchor="middle">
+                HTML (Structure)
+            </text>
+            <!-- CSS -->
+            <rect x="10" y="150" width="380" height="50" rx="5" fill="#6c757d" />
+            <text x="200" y="180" font-family="Inter" font-size="16" fill="white" text-anchor="middle">
+                CSS (Styling)
+            </text>
+            <!-- JavaScript -->
+            <rect x="10" y="220" width="380" height="50" rx="5" fill="#6c757d" />
+            <text x="200" y="250" font-family="Inter" font-size="16" fill="white" text-anchor="middle">
+                JavaScript (Behavior)
+            </text>
+        </svg>
+        </div>
+
+        <div class="slide" id="slide-4">
+            <h2 class="slide-title animated">Why Use Bootstrap?</h2>
+            <p class="content-text mb-4 animated delay-1">Key benefits: Responsiveness, Component Library, Browser Compatibility, Active Community.</p>
+            <svg class="svg-diagram animated delay-2" viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                     <linearGradient id="grad-success" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" style="stop-color:#198754;" />
+                        <stop offset="100%" style="stop-color:#157347;" />
+                    </linearGradient>
+                     <linearGradient id="grad-warning" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" style="stop-color:#ffc107;" />
+                        <stop offset="100%" style="stop-color:#ffb300;" />
+                    </linearGradient>
+                </defs>
+                <text x="100" y="20" font-family="Inter" font-size="14" text-anchor="middle" font-weight="bold">Pros</text>
+                <text x="300" y="20" font-family="Inter" font-size="14" text-anchor="middle" font-weight="bold">Considerations</text>
+                <rect x="40" y="40" width="120" height="120" rx="5" fill="url(#grad-success)" />
+                <text x="100" y="105" font-family="Inter" font-size="12" fill="white" text-anchor="middle">Development Speed</text>
+                <rect x="40" y="165" width="120" height="20" rx="5" fill="url(#grad-success)" />
+                <text x="100" y="180" font-family="Inter" font-size="12" fill="white" text-anchor="middle">Consistency</text>
+                
+                <rect x="250" y="115" width="100" height="70" rx="5" fill="url(#grad-warning)" />
+                <text x="300" y="155" font-family="Inter" font-size="12" fill="#212529" text-anchor="middle">File Size</text>
+                <rect x="250" y="80" width="100" height="30" rx="5" fill="url(#grad-warning)" />
+                <text x="300" y="100" font-family="Inter" font-size="12" fill="#212529" text-anchor="middle">Customization</text>
+            </svg>
+        </div>
+
+        <div class="slide" id="slide-5">
+            <h2 class="slide-title animated">The 12-Column Grid System</h2>
+            <svg class="svg-diagram animated delay-1" viewBox="0 0 1240 200" xmlns="http://www.w3.org/2000/svg">
+                <rect x="10" y="10" width="1220" height="180" rx="10" fill="rgba(255,255,255,0.5)" stroke="#ced4da" stroke-width="2" />
+                <text x="620" y="40" font-size="20" text-anchor="middle" fill="#6c757d">.container</text>
+                <rect x="20" y="60" width="1200" height="120" rx="5" fill="rgba(13,110,253,0.05)" stroke="#0d6efd" stroke-dasharray="5" stroke-width="1"/>
+                <text x="620" y="85" font-size="16" text-anchor="middle" fill="#0d6efd">.row</text>
+                <g>
+                    <script>
+                        const svgNS = "http://www.w3.org/2000/svg";
+                        const g = document.currentScript.parentElement;
+                        for(let i = 0; i < 12; i++) {
+                            const colRect = document.createElementNS(svgNS, "rect");
+                            colRect.setAttribute("x", 25 + i * 100);
+                            colRect.setAttribute("y", 95);
+                            colRect.setAttribute("width", 90);
+                            colRect.setAttribute("height", 80);
+                            colRect.setAttribute("rx", 5);
+                            colRect.setAttribute("fill", "rgba(25, 135, 84, 0.2)");
+                            colRect.setAttribute("stroke", "rgba(25, 135, 84, 0.5)");
+                            g.appendChild(colRect);
+
+                            const colText = document.createElementNS(svgNS, "text");
+                            colText.setAttribute("x", 70 + i * 100);
+                            colText.setAttribute("y", 138);
+                            colText.setAttribute("font-size", "16");
+                            colText.setAttribute("text-anchor", "middle");
+                            colText.setAttribute("fill", "#0f5132");
+                            colText.textContent = "1 col";
+                            g.appendChild(colText);
+                        }
+                    </script>
+                </g>
+            </svg>
+        </div>
+
+        <div class="slide" id="slide-6">
+            <h2 class="slide-title animated">Building Layouts: Rows & Columns</h2>
+            <div class="comparison-container w-100 animated delay-1">
+                <div class="comparison-item">
+                    <pre class="code-snippet"><code>&lt;div class="row"&gt;
+  &lt;div class="col-md-6"&gt;
+    ...
+  &lt;/div&gt;
+  &lt;div class="col-md-6"&gt;
+    ...
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+                </div>
+                <div class="comparison-item">
+                    <svg class="svg-diagram" viewBox="0 0 220 100" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="5" y="5" width="210" height="90" rx="5" fill="rgba(13,110,253,0.1)" />
+                        <rect x="10" y="10" width="100" height="80" rx="5" fill="rgba(25, 135, 84, 0.2)" stroke="rgba(25, 135, 84, 0.5)" />
+                        <text x="60" y="55" text-anchor="middle" fill="#0f5132">.col-md-6</text>
+                        <rect x="110" y="10" width="100" height="80" rx="5" fill="rgba(25, 135, 84, 0.2)" stroke="rgba(25, 135, 84, 0.5)" />
+                        <text x="160" y="55" text-anchor="middle" fill="#0f5132">.col-md-6</text>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide" id="slide-7">
+            <h2 class="slide-title animated">Responsive Breakpoints</h2>
+            <svg class="svg-diagram animated delay-1" viewBox="0 0 800 200" xmlns="http://www.w3.org/2000/svg">
+                <line x1="50" y1="100" x2="750" y2="100" stroke="#ced4da" stroke-width="4" />
+                <g>
+                    <circle cx="100" cy="100" r="10" fill="#fff" stroke="#0d6efd" stroke-width="3" />
+                    <text x="100" y="80" text-anchor="middle" font-weight="bold">sm</text>
+                    <text x="100" y="130" text-anchor="middle" font-size="12">≥576px</text>
+                </g>
+                <g>
+                    <circle cx="250" cy="100" r="10" fill="#fff" stroke="#0d6efd" stroke-width="3" />
+                    <text x="250" y="80" text-anchor="middle" font-weight="bold">md</text>
+                    <text x="250" y="130" text-anchor="middle" font-size="12">≥768px</text>
+                </g>
+                <g>
+                    <circle cx="400" cy="100" r="10" fill="#fff" stroke="#0d6efd" stroke-width="3" />
+                    <text x="400" y="80" text-anchor="middle" font-weight="bold">lg</text>
+                    <text x="400" y="130" text-anchor="middle" font-size="12">≥992px</text>
+                </g>
+                <g>
+                    <circle cx="550" cy="100" r="10" fill="#fff" stroke="#0d6efd" stroke-width="3" />
+                    <text x="550" y="80" text-anchor="middle" font-weight="bold">xl</text>
+                    <text x="550" y="130" text-anchor="middle" font-size="12">≥1200px</text>
+                </g>
+                <g>
+                    <circle cx="700" cy="100" r="10" fill="#fff" stroke="#0d6efd" stroke-width="3" />
+                    <text x="700" y="80" text-anchor="middle" font-weight="bold">xxl</text>
+                    <text x="700" y="130" text-anchor="middle" font-size="12">≥1400px</text>
+                </g>
+            </svg>
+        </div>
+
+        <!-- Section 2: Responsive Web Pages -->
+        <div class="slide section-title-slide" id="slide-8">
+            <h1 class="animated">Creating Responsive Pages</h1>
+        </div>
+
+        <div class="slide" id="slide-9">
+            <h2 class="slide-title animated">Mobile-First Design</h2>
+            <p class="content-text mb-4 animated delay-1">Design for the smallest screen first, then scale up using breakpoints.</p>
+            <svg class="svg-diagram animated delay-2" viewBox="0 0 500 200" xmlns="http://www.w3.org/2000/svg">
+                <rect x="50" y="50" width="80" height="130" rx="10" fill="#fff" stroke="#333" stroke-width="2" />
+                <text x="90" y="120" text-anchor="middle" font-size="12">Mobile</text>
+                <path d="M 140 115 L 200 115" stroke="#0d6efd" stroke-width="2" marker-end="url(#arrow)" />
+                <rect x="210" y="30" width="240" height="150" rx="10" fill="#fff" stroke="#333" stroke-width="2" />
+                <text x="330" y="110" text-anchor="middle" font-size="12">Desktop</text>
+                <defs>
+                    <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                        <path d="M 0 0 L 10 5 L 0 10 z" fill="#0d6efd" />
+                    </marker>
+                </defs>
+            </svg>
+        </div>
+        
+        <div class="slide" id="slide-10">
+            <h2 class="slide-title animated">Responsive Images</h2>
+            <p class="content-text mb-4 animated delay-1">
+                Use the <code class="text-danger bg-light px-2 py-1 rounded">.img-fluid</code> class to make images responsive and prevent them from overflowing their containers.
+            </p>
+            <div class="comparison-container animated delay-2" style="display: flex; gap: 2rem; justify-content: center;">
+                
+                <!-- Without .img-fluid -->
+                <div class="comparison-item text-center">
+                    <h5 class="mb-3">Without .img-fluid</h5>
+                    <div style="width: 150px; border: 2px dashed #dc3545; border-radius: 0.5rem;">
+                        <img src="https://placehold.co/300x200/dc3545/white?text=Overflow" alt="Overflowing image" style="width: 150px;">
+                    </div>
+                </div>
+
+                <!-- With .img-fluid -->
+                <div class="comparison-item text-center">
+                    <h5 class="mb-3">With .img-fluid</h5>
+                    <div style="width: 150px; border: 2px solid #198754; border-radius: 0.5rem;">
+                        <img src="https://placehold.co/300x200/198754/white?text=Responsive" class="img-fluid" alt="Responsive image">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+        <div class="slide" id="slide-11">
+            <h2 class="slide-title animated">Hiding & Showing Content</h2>
+            <p class="content-text mb-4 animated delay-1">Use display utilities like <code class="text-danger bg-light px-2 py-1 rounded">.d-none</code> and <code class="text-danger bg-light px-2 py-1 rounded">.d-lg-block</code> to control element visibility.</p>
+            <svg class="svg-diagram animated delay-2" viewBox="0 0 500 200" xmlns="http://www.w3.org/2000/svg">
+                <g>
+                    <rect x="50" y="50" width="80" height="130" rx="10" fill="#f8d7da" stroke="#dc3545" stroke-width="2" />
+                    <text x="90" y="115" text-anchor="middle" font-size="12">
+                        <tspan x="90" dy="0">Hidden on</tspan>
+                        <tspan x="90" dy="15">Mobile</tspan>
+                    </text>
+                </g>
+                <g>
+                    <rect x="180" y="60" width="120" height="100" rx="10" fill="#f8d7da" stroke="#dc3545" stroke-width="2" />
+                    <text x="240" y="115" text-anchor="middle" font-size="12">Hidden on Tablet</text>
+                </g>
+                <g>
+                    <rect x="350" y="30" width="120" height="150" rx="10" fill="#d1e7dd" stroke="#198754" stroke-width="2" />
+                    <text x="410" y="110" text-anchor="middle" font-size="12">Visible on Desktop</text>
+                    <text x="410" y="130" text-anchor="middle" font-size="10" font-family="monospace">.d-none .d-lg-block</text>
+                </g>
+            </svg>
+        </div>
+        
+        <div class="slide" id="slide-12">
+            <h2 class="slide-title animated">Offset, Order, and Gutters</h2>
+            <div class="container-fluid animated delay-1">
+                <div class="row text-center">
+                    <div class="col-4">
+                        <h5 class="mb-3">Offset</h5>
+                        <svg class="svg-diagram" viewBox="0 0 120 50" xmlns="http://www.w3.org/2000/svg">
+                            <rect x="40" y="10" width="30" height="30" rx="2" fill="#d1e7dd" />
+                            <text x="55" y="28" text-anchor="middle" font-size="8">.col-3</text>
+                            <rect x="75" y="10" width="30" height="30" rx="2" fill="#cff4fc" />
+                            <text x="90" y="28" text-anchor="middle" font-size="8">.col-3</text>
+                            <text x="25" y="28" text-anchor="middle" font-size="8" fill="#6c757d">.offset-4</text>
+                        </svg>
+                    </div>
+                    <div class="col-4">
+                        <h5 class="mb-3">Order</h5>
+                        <svg class="svg-diagram" viewBox="0 0 120 50" xmlns="http://www.w3.org/2000/svg">
+                             <rect x="65" y="10" width="50" height="30" rx="2" fill="#d1e7dd" />
+                             <text x="90" y="28" text-anchor="middle" font-size="8">First (.order-2)</text>
+                             <rect x="5" y="10" width="50" height="30" rx="2" fill="#cff4fc" />
+                             <text x="30" y="28" text-anchor="middle" font-size="8">Second (.order-1)</text>
+                        </svg>
+                    </div>
+                    <div class="col-4">
+                        <h5 class="mb-3">Gutters</h5>
+                        <svg class="svg-diagram" viewBox="0 0 120 50" xmlns="http://www.w3.org/2000/svg">
+                             <rect x="5" y="10" width="50" height="30" rx="2" fill="#d1e7dd" />
+                             <rect x="65" y="10" width="50" height="30" rx="2" fill="#d1e7dd" />
+                             <path d="M 57.5 10 L 57.5 40" stroke="#0d6efd" stroke-width="1" />
+                             <path d="M 62.5 10 L 62.5 40" stroke="#0d6efd" stroke-width="1" />
+                             <text x="60" y="8" text-anchor="middle" font-size="8" fill="#0d6efd">gx-*</text>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="slide" id="slide-13">
+             <h2 class="slide-title animated">Practical Example: Responsive Layout</h2>
+             <div class="container-fluid text-center animated delay-1">
+                <p class="content-text mb-4">A single layout that adapts its columns across breakpoints.</p>
+                <div class="row">
+                    <div class="col-12 col-md-6 col-lg-4 p-2">
+                        <div class="bg-primary text-white p-4 rounded h-100 d-flex flex-column align-items-center justify-content-center"><strong>Item 1</strong><small>(.col-12 .col-md-6 .col-lg-4)</small></div>
+                    </div>
+                    <div class="col-12 col-md-6 col-lg-4 p-2">
+                        <div class="bg-success text-white p-4 rounded h-100 d-flex flex-column align-items-center justify-content-center"><strong>Item 2</strong><small>(.col-12 .col-md-6 .col-lg-4)</small></div>
+                    </div>
+                    <div class="col-12 col-md-12 col-lg-4 p-2">
+                        <div class="bg-warning text-dark p-4 rounded h-100 d-flex flex-column align-items-center justify-content-center"><strong>Item 3</strong><small>(.col-12 .col-md-12 .col-lg-4)</small></div>
+                    </div>
+                </div>
+             </div>
+        </div>
+
+        <!-- Section 3: Components -->
+        <div class="slide section-title-slide" id="slide-14">
+            <h1 class="animated">Common Components</h1>
+        </div>
+        
+        <div class="slide" id="slide-15">
+            <h2 class="slide-title animated">Navigation Bars (Navbar)</h2>
+            <p class="content-text mb-4 animated delay-1">Key classes: <code class="text-danger bg-light px-2 py-1 rounded">.navbar</code>, <code class="text-danger bg-light px-2 py-1 rounded">.navbar-expand-lg</code>, <code class="text-danger bg-light px-2 py-1 rounded">.navbar-toggler</code>.</p>
+            <nav class="navbar navbar-expand-lg navbar-light bg-light rounded shadow-sm animated delay-2" style="width: 100%; max-width: 800px;">
+              <div class="container-fluid">
+                <a class="navbar-brand fw-bold" href="#">Navbar</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                  <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link active" href="#">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#">Features</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#">Pricing</a></li>
+                  </ul>
+                </div>
+              </div>
+            </nav>
+        </div>
+
+        <div class="slide" id="slide-16">
+            <h2 class="slide-title animated">Cards</h2>
+            <p class="content-text mb-4 animated delay-1">A flexible content container for images, text, lists, and more.</p>
+            <div class="row animated delay-2" style="max-width: 900px;">
+                <div class="col-4">
+                    <div class="card shadow-sm h-100">
+                        <img src="https://placehold.co/400x300/0d6efd/white?text=Image" class="card-img-top" alt="...">
+                        <div class="card-body">
+                            <h5 class="card-title">Card Title</h5>
+                            <p class="card-text small">Some quick example text to build on the card.</p>
+                            <a href="#" class="btn btn-primary btn-sm">Go somewhere</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="card shadow-sm h-100">
+                        <img src="https://placehold.co/400x300/198754/white?text=Image" class="card-img-top" alt="...">
+                        <div class="card-body">
+                            <h5 class="card-title">Card Title</h5>
+                            <p class="card-text small">Some quick example text to build on the card.</p>
+                            <a href="#" class="btn btn-primary btn-sm">Go somewhere</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="card shadow-sm h-100">
+                        <img src="https://placehold.co/400x300/ffc107/white?text=Image" class="card-img-top" alt="...">
+                        <div class="card-body">
+                            <h5 class="card-title">Card Title</h5>
+                            <p class="card-text small">Some quick example text to build on the card.</p>
+                            <a href="#" class="btn btn-primary btn-sm">Go somewhere</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="slide" id="slide-17">
+            <h2 class="slide-title animated">Modals</h2>
+            <p class="content-text mb-4 animated delay-1">Add dialogs to your site for lightboxes, user notifications, or completely custom content.</p>
+            <button type="button" class="btn btn-primary btn-lg shadow animated delay-2" data-bs-toggle="modal" data-bs-target="#exampleModal">
+              Launch demo modal
+            </button>
+        </div>
+
+        <div class="slide" id="slide-18">
+            <h2 class="slide-title animated">Buttons & Alerts</h2>
+            <div class="container-fluid text-start animated delay-1" style="max-width: 800px;">
+                <h5 class="mb-3">Buttons</h5>
+                <button type="button" class="btn btn-primary">Primary</button>
+                <button type="button" class="btn btn-secondary">Secondary</button>
+                <button type="button" class="btn btn-success">Success</button>
+                <button type="button" class="btn btn-danger">Danger</button>
+                <button type="button" class="btn btn-warning">Warning</button>
+                <button type="button" class="btn btn-info">Info</button>
+                <hr class="my-4">
+                <h5 class="mb-3">Alerts</h5>
+                <div class="alert alert-success" role="alert">A simple success alert—check it out!</div>
+                <div class="alert alert-danger" role="alert">A simple danger alert—check it out!</div>
+            </div>
+        </div>
+
+        <div class="slide" id="slide-19">
+            <h2 class="slide-title animated">Carousels (Image Sliders)</h2>
+            <p class="content-text mb-4 animated delay-1">A slideshow component for cycling through elements.</p>
+            <div id="carousel-example" class="carousel slide animated delay-2" data-bs-ride="carousel">
+              <div class="carousel-inner">
+                <div class="carousel-item active">
+                  <img src="https://placehold.co/800x400/0d6efd/white?text=First+Slide" class="d-block w-100" alt="...">
+                </div>
+                <div class="carousel-item">
+                  <img src="https://placehold.co/800x400/198754/white?text=Second+Slide" class="d-block w-100" alt="...">
+                </div>
+                <div class="carousel-item">
+                  <img src="https://placehold.co/800x400/ffc107/black?text=Third+Slide" class="d-block w-100" alt="...">
+                </div>
+              </div>
+            </div>
+        </div>
+
+        <!-- Section 4: Utilities -->
+        <div class="slide section-title-slide" id="slide-20">
+            <h1 class="animated">Bootstrap Utilities</h1>
+        </div>
+
+        <div class="slide" id="slide-21">
+            <h2 class="slide-title animated">Spacing (Margin & Padding)</h2>
+            <p class="content-text mb-4 animated delay-1">Quickly manage element spacing with shorthand responsive utilities like <code class="text-danger bg-light px-2 py-1 rounded">.m-3</code>, <code class="text-danger bg-light px-2 py-1 rounded">.p-4</code>, <code class="text-danger bg-light px-2 py-1 rounded">.mt-5</code>.</p>
+            <svg class="svg-diagram animated delay-2" viewBox="0 0 300 200" xmlns="http://www.w3.org/2000/svg">
+                <rect x="50" y="50" width="200" height="100" fill="none" stroke="#6c757d" stroke-width="2" stroke-dasharray="4"/>
+                <text x="150" y="40" text-anchor="middle" font-size="12">Margin (m-*)</text>
+                <rect x="80" y="80" width="140" height="40" fill="rgba(13,110,253,0.1)" stroke="#0d6efd" stroke-width="2"/>
+                <text x="150" y="70" text-anchor="middle" font-size="12">Padding (p-*)</text>
+                <text x="150" y="105" text-anchor="middle" font-weight="bold">Content</text>
+            </svg>
+        </div>
+
+        <div class="slide" id="slide-22">
+            <h2 class="slide-title animated">Colors & Backgrounds</h2>
+            <div class="container-fluid animated delay-1" style="max-width: 800px;">
+                <div class="row text-center">
+                    <div class="col-4 p-2"><div class="p-3 rounded shadow-sm bg-primary text-white">.bg-primary</div></div>
+                    <div class="col-4 p-2"><div class="p-3 rounded shadow-sm bg-secondary text-white">.bg-secondary</div></div>
+                    <div class="col-4 p-2"><div class="p-3 rounded shadow-sm bg-success text-white">.bg-success</div></div>
+                    <div class="col-4 p-2"><div class="p-3 rounded shadow-sm bg-danger text-white">.bg-danger</div></div>
+                    <div class="col-4 p-2"><div class="p-3 rounded shadow-sm bg-warning text-dark">.bg-warning</div></div>
+                    <div class="col-4 p-2"><div class="p-3 rounded shadow-sm bg-info text-dark">.bg-info</div></div>
+                </div>
+                <div class="row mt-4">
+                    <div class="col-6"><p class="text-danger h4">.text-danger</p></div>
+                    <div class="col-6"><p class="border border-success border-2 p-2 rounded h4">.border-success</p></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide" id="slide-23">
+            <h2 class="slide-title animated">Flexbox Utilities</h2>
+            <div class="container-fluid animated delay-1" style="max-width: 900px;">
+                <div class="row text-center">
+                    <div class="col-6 col-md-3 mb-3">
+                        <code>.d-flex</code>
+                        <div class="d-flex bg-light p-2 rounded border" style="height: 50px;">
+                            <div class="p-2 bg-info rounded">1</div><div class="p-2 bg-info rounded ms-1">2</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3 mb-3">
+                        <code>.justify-content-center</code>
+                        <div class="d-flex justify-content-center bg-light p-2 rounded border" style="height: 50px;">
+                            <div class="p-2 bg-info rounded">1</div><div class="p-2 bg-info rounded ms-1">2</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3 mb-3">
+                        <code>.align-items-center</code>
+                        <div class="d-flex align-items-center bg-light p-2 rounded border" style="height: 50px;">
+                            <div class="p-2 bg-info rounded">1</div><div class="p-2 bg-info rounded ms-1">2</div>
+                        </div>
+                    </div>
+                     <div class="col-6 col-md-3 mb-3">
+                        <code>.flex-column</code>
+                        <div class="d-flex flex-column bg-light p-2 rounded border" style="height: 80px;">
+                            <div class="p-2 bg-info rounded">1</div><div class="p-2 bg-info rounded mt-1">2</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide" id="slide-24">
+            <h2 class="slide-title animated">Borders & Shadows</h2>
+            <div class="container-fluid animated delay-1" style="max-width: 800px;">
+                <div class="row text-center">
+                    <div class="col-3"><div class="p-3 bg-light border">.border</div></div>
+                    <div class="col-3"><div class="p-3 bg-light border border-top-0">.border-top-0</div></div>
+                    <div class="col-3"><div class="p-3 bg-light border rounded-pill">.rounded-pill</div></div>
+                    <div class="col-3"><div class="p-3 bg-light border border-primary border-3">.border-3</div></div>
+                </div>
+                <div class="row text-center mt-4">
+                    <div class="col-4"><div class="p-3 bg-white rounded shadow-sm">.shadow-sm</div></div>
+                    <div class="col-4"><div class="p-3 bg-white rounded shadow">.shadow</div></div>
+                    <div class="col-4"><div class="p-3 bg-white rounded shadow-lg">.shadow-lg</div></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="slide" id="slide-25">
+            <h2 class="slide-title animated">Text & Typography</h2>
+            <div class="container-fluid text-center animated delay-1" style="max-width: 800px;">
+                <p class="fs-1">.fs-1 heading</p>
+                <p class="fs-4">.fs-4 heading</p>
+                <p class="text-start">.text-start</p>
+                <p class="text-center">.text-center</p>
+                <p class="text-end">.text-end</p>
+                <p class="fw-bold">.fw-bold</p>
+                <p class="fst-italic">.fst-italic</p>
+                <p class="text-muted">.text-muted</p>
+            </div>
+        </div>
+
+        <!-- Section 5: Comparison -->
+        <div class="slide section-title-slide" id="slide-26">
+            <h1 class="animated">Bootstrap vs. Tailwind</h1>
+        </div>
+
+        <div class="slide" id="slide-27">
+            <h2 class="slide-title animated">Philosophy & Approach</h2>
+            <svg class="svg-diagram animated delay-1" viewBox="0 0 700 300" xmlns="http://www.w3.org/2000/svg">
+                <!-- Bootstrap box -->
+                <rect x="50" y="60" width="180" height="180" rx="10" fill="rgba(13,110,253,0.2)" stroke="#0d6efd" stroke-width="2"/>
+                <text x="140" y="90" text-anchor="middle" font-weight="bold" font-size="16">Bootstrap</text>
+                <text x="140" y="120" text-anchor="middle" font-size="12">Component-Based</text>
+                <text x="140" y="140" text-anchor="middle" font-size="12">Pre-styled</text>
+                <text x="140" y="160" text-anchor="middle" font-size="12">Rapid Prototyping</text>
+
+                <!-- Shared box -->
+                <rect x="260" y="40" width="180" height="220" rx="10" fill="rgba(108,117,125,0.2)" stroke="#6c757d" stroke-width="2"/>
+                <text x="350" y="80" text-anchor="middle" font-weight="bold" font-size="16">Shared</text>
+                <text x="350" y="110" text-anchor="middle" font-size="12">CSS Frameworks</text>
+                <text x="350" y="130" text-anchor="middle" font-size="12">Responsive</text>
+
+                <!-- Tailwind box -->
+                <rect x="470" y="60" width="180" height="180" rx="10" fill="rgba(111,66,193,0.2)" stroke="#6f42c1" stroke-width="2"/>
+                <text x="560" y="90" text-anchor="middle" font-weight="bold" font-size="16">Tailwind CSS</text>
+                <text x="560" y="120" text-anchor="middle" font-size="12">Utility-First</text>
+                <text x="560" y="140" text-anchor="middle" font-size="12">Highly Customizable</text>
+                <text x="560" y="160" text-anchor="middle" font-size="12">No Pre-built UI</text>
+
+                <!-- Arrow from Bootstrap to Shared -->
+                <line x1="230" y1="150" x2="260" y2="150" stroke="#0d6efd" stroke-width="2" marker-end="url(#arrowhead)"/>
+
+                <!-- Arrow from Tailwind to Shared -->
+                <line x1="470" y1="150" x2="440" y2="150" stroke="#6f42c1" stroke-width="2" marker-end="url(#arrowhead)"/>
+
+                <!-- Arrowhead definition -->
+                <defs>
+                    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+                        <polygon points="0 0, 10 3.5, 0 7" fill="black"/>
+                    </marker>
+                </defs>
+            </svg>
+
+        </div>
+        
+        <div class="slide" id="slide-28">
+            <h2 class="slide-title animated">Styling a Button: A Comparison</h2>
+            <div class="comparison-container animated delay-1">
+                <div class="comparison-item text-center">
+                    <h5>Bootstrap</h5>
+                    <pre class="code-snippet mb-3"><code>&lt;button class="btn btn-primary"&gt;
+  Click Me
+&lt;/button&gt;</code></pre>
+                    <button class="btn btn-primary">Click Me</button>
+                </div>
+                <div class="comparison-item text-center">
+                    <h5>Tailwind CSS</h5>
+                    <pre class="code-snippet mb-3"><code>&lt;button class="bg-blue-500..."&gt;
+  Click Me
+&lt;/button&gt;</code></pre>
+                    <button style="background-color: #3b82f6; color: white; font-weight: bold; padding: 0.5rem 1rem; border-radius: 0.25rem;">Click Me</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide" id="slide-29">
+            <h2 class="slide-title animated">Pros and Cons</h2>
+            <div class="comparison-container animated delay-1">
+                <div class="comparison-item">
+                    <h4 class="text-primary">Bootstrap</h4>
+                    <ul class="list-group shadow-sm">
+                      <li class="list-group-item list-group-item-success"><strong>Pro:</strong> Fast to start, large community</li>
+                      <li class="list-group-item list-group-item-success"><strong>Pro:</strong> Pre-built UI components</li>
+                      <li class="list-group-item list-group-item-danger"><strong>Con:</strong> Can lead to generic-looking sites</li>
+                      <li class="list-group-item list-group-item-danger"><strong>Con:</strong> Harder to customize deeply</li>
+                    </ul>
+                </div>
+                <div class="comparison-item">
+                    <h4 style="color: #6f42c1;">Tailwind CSS</h4>
+                    <ul class="list-group shadow-sm">
+                      <li class="list-group-item list-group-item-success"><strong>Pro:</strong> Unique designs, highly maintainable</li>
+                      <li class="list-group-item list-group-item-success"><strong>Pro:</strong> No unused CSS with PurgeCSS</li>
+                      <li class="list-group-item list-group-item-danger"><strong>Con:</strong> Steeper learning curve</li>
+                      <li class="list-group-item list-group-item-danger"><strong>Con:</strong> Verbose HTML, requires a build step</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide" id="slide-30">
+            <h2 class="slide-title animated">When to Choose Which?</h2>
+            <svg class="svg-diagram animated delay-1" viewBox="0 0 500 300" xmlns="http://www.w3.org/2000/svg">
+                <rect x="150" y="20" width="200" height="50" rx="10" fill="#fff" stroke="#333" />
+                <text x="250" y="50" text-anchor="middle">Project Goal?</text>
+                <path d="M 250 70 L 250 90" stroke="#333" stroke-width="2" />
+                <path d="M 125 110 L 375 110" stroke="#333" stroke-width="2" />
+                <path d="M 125 110 L 125 130" stroke="#333" stroke-width="2" />
+                <path d="M 375 110 L 375 130" stroke="#333" stroke-width="2" />
+                
+                <rect x="50" y="130" width="150" height="70" rx="10" fill="#fff"/>
+                <text x="125" y="155" text-anchor="middle" font-size="12">Standard dashboard</text>
+                <text x="125" y="175" text-anchor="middle" font-size="12">or admin panel?</text>
+                <path d="M 125 200 L 125 220" stroke="#333" stroke-width="2" marker-end="url(#arrow-dark)" />
+                <rect x="50" y="220" width="150" height="40" rx="10" fill="#cfe2ff" stroke="#0d6efd"/>
+                <text x="125" y="245" text-anchor="middle" font-weight="bold">Bootstrap</text>
+
+                <rect x="300" y="130" width="150" height="70" rx="10" fill="#fff"/>
+                <text x="375" y="155" text-anchor="middle" font-size="12">Unique, custom</text>
+                <text x="375" y="175" text-anchor="middle" font-size="12">marketing site?</text>
+                <path d="M 375 200 L 375 220" stroke="#333" stroke-width="2" marker-end="url(#arrow-dark)" />
+                <rect x="300" y="220" width="150" height="40" rx="10" fill="#e9d5ff" stroke="#6f42c1"/>
+                <text x="375" y="245" text-anchor="middle" font-weight="bold">Tailwind</text>
+                <defs>
+                    <marker id="arrow-dark" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                        <path d="M 0 0 L 10 5 L 0 10 z" fill="#333" />
+                    </marker>
+                </defs>
+            </svg>
+        </div>
+
+        <div class="slide" id="slide-31">
+            <h2 class="slide-title animated">The Verdict</h2>
+             <svg class="mb-4 animated delay-1" width="100" height="100" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M21.93,6.72,17.28,2.07a1,1,0,0,0-.71-.29H7.43a1,1,0,0,0-.71.29L2.07,6.72A1,1,0,0,0,2,7.43V19.5A2.5,2.5,0,0,0,4.5,22h15A2.5,2.5,0,0,0,22,19.5V7.43A1,1,0,0,0,21.93,6.72ZM16.57,4.18l3.65,3.65H16.12V4.28ZM7.88,4.28V7.83H3.78ZM4,19.5V8.83H8.88a1,1,0,0,0,1-1V4.18h4.24V7.83a1,1,0,0,0,1,1h4.88V19.5Z" fill="#0d6efd"/>
+                <path d="M14,11H10a1,1,0,0,0,0,2h4a1,1,0,0,0,0-2Z" fill="#0d6efd"/>
+                <path d="M14,15H10a1,1,0,0,0,0,2h4a1,1,0,0,0,0-2Z" fill="#0d6efd"/>
+            </svg>
+            <p class="content-text animated delay-2">Both are excellent tools. The best choice depends on the project's goals, team's familiarity, and desired level of customization. <strong>There is no single 'winner'.</strong></p>
+        </div>
+
+        <!-- Slide 32: Final Slide -->
+        <div class="slide" id="slide-32">
+            <p class="final-slide-text animated">Thank You!</p>
+            <p class="slide-subtitle animated delay-1">Questions?</p>
+            <p class="text-muted mt-5 animated delay-2">Group 13, CNT, VIT Pune</p>
+        </div>
+    </div>
+
+    <!-- Modal Definition -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            This is a live demo of a Bootstrap modal. It's launched from a button on the slide.
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary">Save changes</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- UI Controls -->
+    <div class="presentation-controls">
+        <button id="prev-btn" class="control-btn" aria-label="Previous Slide">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15.41 7.41L14 6L8 12L14 18L15.41 16.59L10.83 12L15.41 7.41Z" fill="#333"/></svg>
+        </button>
+        <div id="slide-counter">1 / 32</div>
+        <button id="next-btn" class="control-btn" aria-label="Next Slide">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8.59 16.59L10 18L16 12L10 6L8.59 7.41L13.17 12L8.59 16.59Z" fill="#333"/></svg>
+        </button>
+    </div>
+
+    <button id="fullscreen-btn" class="control-btn" aria-label="Toggle Fullscreen">
+        <svg id="fullscreen-open-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7 14H5V19H10V17H7V14ZM5 10H7V5H10V3H5V10ZM17 17H14V19H19V14H17V17ZM14 3V5H17V10H19V5H14Z" fill="#333"/></svg>
+        <svg id="fullscreen-close-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: none;"><path d="M5 16H8V19H10V14H5V16ZM8 8H5V10H10V5H8V8ZM16 19H14V16H19V14H14V19ZM16 8V5H14V10H19V8H16Z" fill="#333"/></svg>
+    </button>
+
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" xintegrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- STATE MANAGEMENT ---
+            let currentSlide = 1;
+            const totalSlides = document.querySelectorAll('.slide').length;
+
+            // --- ELEMENT REFERENCES ---
+            const slides = document.querySelectorAll('.slide');
+            const prevBtn = document.getElementById('prev-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const slideCounter = document.getElementById('slide-counter');
+            const fullscreenBtn = document.getElementById('fullscreen-btn');
+            const fsOpenIcon = document.getElementById('fullscreen-open-icon');
+            const fsCloseIcon = document.getElementById('fullscreen-close-icon');
+
+            // --- FUNCTIONS ---
+
+            /**
+             * Shows a specific slide and hides all others.
+             * @param {number} slideNumber - The 1-based index of the slide to show.
+             */
+            function showSlide(slideNumber) {
+                // Deactivate all slides
+                slides.forEach(slide => {
+                    slide.classList.remove('active');
+                });
+
+                // Activate the target slide
+                const targetSlide = document.getElementById(`slide-${slideNumber}`);
+                if (targetSlide) {
+                    targetSlide.classList.add('active');
+                }
+
+                // Update the slide counter
+                slideCounter.textContent = `${slideNumber} / ${totalSlides}`;
+                
+                // Update button states
+                prevBtn.disabled = (slideNumber === 1);
+                nextBtn.disabled = (slideNumber === totalSlides);
+            }
+
+            /**
+             * Navigates to the next slide.
+             */
+            function nextSlide() {
+                if (currentSlide < totalSlides) {
+                    currentSlide++;
+                    showSlide(currentSlide);
+                }
+            }
+            
+            /**
+             * Navigates to the previous slide.
+             */
+            function prevSlide() {
+                if (currentSlide > 1) {
+                    currentSlide--;
+                    showSlide(currentSlide);
+                }
+            }
+            
+            /**
+             * Toggles fullscreen mode for the presentation.
+             */
+            function toggleFullscreen() {
+                if (!document.fullscreenElement) {
+                    document.documentElement.requestFullscreen().catch(err => {
+                        console.warn(`Fullscreen mode could not be enabled. This is often due to security restrictions in embedded environments. Details: ${err.message}`);
+                    });
+                } else {
+                    if (document.exitFullscreen) {
+                        document.exitFullscreen();
+                    }
+                }
+            }
+            
+            /**
+             * Updates the fullscreen icon based on the current state.
+             */
+            function updateFullscreenIcon() {
+                if (document.fullscreenElement) {
+                    fsOpenIcon.style.display = 'none';
+                    fsCloseIcon.style.display = 'block';
+                } else {
+                    fsOpenIcon.style.display = 'block';
+                    fsCloseIcon.style.display = 'none';
+                }
+            }
+
+            /**
+             * Handles keyboard navigation.
+             * @param {KeyboardEvent} event - The keyboard event object.
+             */
+            function handleKeyDown(event) {
+                // Ignore key presses if a modal is open to prevent slide changes.
+                if (document.querySelector('.modal.show')) {
+                    return;
+                }
+                
+                if (event.key === 'ArrowRight' || event.key === ' ') { // Space also goes next
+                    event.preventDefault();
+                    nextSlide();
+                } else if (event.key === 'ArrowLeft') {
+                    event.preventDefault();
+                    prevSlide();
+                }
+            }
+
+            // --- EVENT LISTENERS ---
+            prevBtn.addEventListener('click', prevSlide);
+            nextBtn.addEventListener('click', nextSlide);
+            fullscreenBtn.addEventListener('click', toggleFullscreen);
+            document.addEventListener('keydown', handleKeyDown);
+            document.addEventListener('fullscreenchange', updateFullscreenIcon);
+
+            // --- INITIALIZATION ---
+            showSlide(currentSlide);
+        });
+    </script>
+
+</body>
+</html>
